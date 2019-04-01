@@ -33,7 +33,9 @@ import org.opencypher.okapi.impl.util.Measurement
 import org.opencypher.okapi.neo4j.io.Neo4jHelpers.Neo4jDefaults.metaPropertyKey
 import org.opencypher.okapi.neo4j.io.Neo4jHelpers._
 
-object Neo4jWriteBenchmark extends App {
+import scala.collection.mutable
+
+object Neo4jWriteBenchmark2 extends App {
 
   val config = Neo4jConfig(
     new URI("bolt://localhost"),
@@ -43,12 +45,12 @@ object Neo4jWriteBenchmark extends App {
 
   def rowToListValue(data: Array[AnyRef]) = Values.value(data.map(Values.value): _*)
 
-  private val numberOfNodes = 10000L
-  val inputNodes = (1L to numberOfNodes).map { i =>
+  private val numberOfNodes = 10000
+  val inputNodes = (1 to numberOfNodes).map { i =>
     Array[AnyRef](i.asInstanceOf[AnyRef], i.asInstanceOf[AnyRef], i.toString.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
   }
 
-  val inputRels = (2L to numberOfNodes).map { i =>
+  val inputRels = (2 to numberOfNodes).map { i =>
     Array[AnyRef](i.asInstanceOf[AnyRef], (i - 1).asInstanceOf[AnyRef], i.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
   }
 
@@ -62,23 +64,33 @@ object Neo4jWriteBenchmark extends App {
     }
 
     Measurement.time {
-      EntityWriter.createNodes(
+      val neo4jIds = EntityWriter2.createNodes(
         inputNodes.toIterator,
         Array(metaPropertyKey, "val1", "val2", "val3"),
         config,
         Set("Foo", "Bar", "Baz")
       )(rowToListValue)
+      val idMap = mutable.Map[Long, Long]()
+      var i = 0
+      while (neo4jIds.hasNext) {
+        val capsId = inputNodes(i)(0).asInstanceOf[Int].toLong
+        idMap.put(capsId, neo4jIds.next())
+        i += 1
+      }
+//      println(neo4jIds.take(20).toList)
 
-      EntityWriter.createRelationships(
+      EntityWriter2.createRelationships(
         inputRels.toIterator,
         1,
         2,
         Array(metaPropertyKey, null, null, "val3"),
         config,
         "REL",
-        Some("Foo")
+        Some("Foo"),
+        idMap
       )(rowToListValue)
     }._2
+
   }
 
   config.withSession { session =>

@@ -26,6 +26,8 @@
  */
 package org.opencypher.okapi.neo4j.io
 
+import java.util.function.BiConsumer
+
 import org.neo4j.driver.v1.Session
 import org.opencypher.okapi.api.value.CypherValue
 import org.opencypher.okapi.api.value.CypherValue.CypherValue
@@ -85,8 +87,12 @@ object Neo4jHelpers {
       try {
         f(session)
       } finally {
-        session.close()
-        driver.close()
+        session.closeAsync.whenCompleteAsync(new BiConsumer[Void, Throwable]() {
+          override def accept(result: Void, error: Throwable): Unit = {
+            driver.closeAsync()
+          }
+        })
+
       }
     }
 
