@@ -40,18 +40,18 @@ object Neo4jWriteBenchmark2 extends App {
   val config = Neo4jConfig(
     new URI("bolt://localhost"),
     "neo4j",
-    Some("passwd")
+    Some("pass")
   )
 
   def rowToListValue(data: Array[AnyRef]) = Values.value(data.map(Values.value): _*)
 
-  private val numberOfNodes = 10000
+  private val numberOfNodes = 100000
   val inputNodes = (1 to numberOfNodes).map { i =>
-    Array[AnyRef](i.asInstanceOf[AnyRef], i.asInstanceOf[AnyRef], i.toString.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
+    Array[AnyRef](i.toLong.asInstanceOf[AnyRef], i.toLong.asInstanceOf[AnyRef], i.toString.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
   }
 
   val inputRels = (2 to numberOfNodes).map { i =>
-    Array[AnyRef](i.asInstanceOf[AnyRef], (i - 1).asInstanceOf[AnyRef], i.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
+    Array[AnyRef](i.toLong.asInstanceOf[AnyRef], (i - 1).toLong.asInstanceOf[AnyRef], i.toLong.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
   }
 
   config.withSession { session =>
@@ -73,7 +73,7 @@ object Neo4jWriteBenchmark2 extends App {
       val idMap = mutable.Map[Long, Long]()
       var i = 0
       while (neo4jIds.hasNext) {
-        val capsId = inputNodes(i)(0).asInstanceOf[Int].toLong
+        val capsId = inputNodes(i)(0).asInstanceOf[Long]
         idMap.put(capsId, neo4jIds.next())
         i += 1
       }

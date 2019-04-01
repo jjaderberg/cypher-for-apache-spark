@@ -46,7 +46,7 @@ object EntityWriter2 extends Logging {
       rowMapping: Array[String],
       config: Neo4jConfig,
       labels: Set[String],
-      batchSize: Int = 1000
+      batchSize: Int = 10000
     )(rowToListValue: T => Value): Iterator[Long] = {
     val labelString = labels.cypherLabelPredicate
 
@@ -76,7 +76,7 @@ object EntityWriter2 extends Logging {
       relType: String,
       nodeLabel: Option[String],
       idMap: mutable.Map[Long, Long],
-      batchSize: Int = 1000
+      batchSize: Int = 10000
     )(rowToListValue: Array[AnyRef] => Value): Unit = {
 
     val setStatements = rowMapping
@@ -107,9 +107,10 @@ object EntityWriter2 extends Logging {
 
     val relationshipsWithPhysicalIds = relationships.map {
       row => {
-        row(startNodeIndex) = idMap(row(startNodeIndex).asInstanceOf[Int].toLong).asInstanceOf[AnyRef]
-        row(endNodeIndex) = idMap(row(endNodeIndex).asInstanceOf[Int].toLong).asInstanceOf[AnyRef]
-        row
+        val c = row.clone()
+        c(startNodeIndex) = idMap(row(startNodeIndex).asInstanceOf[Long]).asInstanceOf[AnyRef]
+        c(endNodeIndex) = idMap(row(endNodeIndex).asInstanceOf[Long]).asInstanceOf[AnyRef]
+        c
       }
     }
 

@@ -38,12 +38,12 @@ object Neo4jWriteBenchmark extends App {
   val config = Neo4jConfig(
     new URI("bolt://localhost"),
     "neo4j",
-    Some("passwd")
+    Some("pass")
   )
 
   def rowToListValue(data: Array[AnyRef]) = Values.value(data.map(Values.value): _*)
 
-  private val numberOfNodes = 10000L
+  private val numberOfNodes = 100000L
   val inputNodes = (1L to numberOfNodes).map { i =>
     Array[AnyRef](i.asInstanceOf[AnyRef], i.asInstanceOf[AnyRef], i.toString.asInstanceOf[AnyRef], (i % 2 == 0).asInstanceOf[AnyRef])
   }

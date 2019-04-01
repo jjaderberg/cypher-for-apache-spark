@@ -117,7 +117,7 @@ object EntityWriter extends Logging {
     rowMapping: Array[String],
     config: Neo4jConfig,
     labels: Set[String],
-    batchSize: Int = 1000
+    batchSize: Int = 10000
   )(rowToListValue: T => Value): Unit = {
     val labelString = labels.cypherLabelPredicate
 
@@ -145,7 +145,7 @@ object EntityWriter extends Logging {
     config: Neo4jConfig,
     relType: String,
     nodeLabel: Option[String],
-    batchSize: Int = 1000
+    batchSize: Int = 10000
   )(rowToListValue: T => Value): Unit = {
     val setStatements = rowMapping
       .zipWithIndex
