@@ -12,9 +12,15 @@ if (project.hasProperty('testOkapiShade')) {
             exclude(group: 'org.opencypher', module: 'okapi-trees')
         }
     }
+    repositories {
+        maven {
+            url "file://${rootProject.file(cfg.publishDir)}"
+        }
+    }
     dependencies {
         compile group: 'org.opencypher', name: 'okapi-shade', version: ver.self
     }
+    tasks.compileScala.dependsOn {project(':okapi-shade').tasks.publishShadePublicationToBuildDirRepository}
 }
 
 dependencies {

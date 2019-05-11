@@ -43,8 +43,8 @@ shadowJar {
     from generatePomFileForShadePublication {
         rename('pom-default.xml',"META-INF/maven/${project.group}/${project.name}/pom.xml")
     }
-    def relocatePackage = 'org.opencypher.relocated'
-    [
+    def relocateTo = 'org.opencypher.relocated'
+    def relocateFrom = [
             'cats',
             'fastparse',
             'machinist',
@@ -55,8 +55,9 @@ shadowJar {
             'ujson',
             'upack',
             'upickle',
-    ].each { pkg ->
-        relocate(pkg, "${relocatePackage}.$pkg")
+    ]
+    relocateFrom.each { pkg ->
+        relocate(pkg, "${relocateTo}.$pkg")
     }
 
     dependencies {
@@ -69,7 +70,39 @@ shadowJar {
     exclude "META-INF/NOTICE*"
     exclude "META-INF/LICENSE*"
     exclude "utf8.json"
-}
 
+    doLast {
+        def scalaShadeExecutable = 'bin/scalashade-0.3.jar'
+        def repairWorkingDir = "$buildDir/tmp/scalashade"
+        def brokenJarPath = shadowJar.archivePath
+        def repairedJarName
+        def repairedJarPath
+        mkdir(repairWorkingDir)
+        relocateFrom.each { pkg ->
+            println "repairing signature: from [$pkg] to [${relocateTo}.$pkg]"
+            repairedJarName = "$pkg-${shadowJar.archiveName}"
+            repairedJarPath = "$repairWorkingDir/$repairedJarName"
+            println "reading from [$brokenJarPath], writing to [$repairedJarPath]"
+            exec {
+                executable 'java'
+                args([
+                    '-jar',
+                    scalaShadeExecutable,
+                    brokenJarPath,
+                    repairedJarPath,
+                    pkg,
+                    "${relocateTo}.$pkg",
+                ])
+            }
+            brokenJarPath = repairedJarPath
+        }
+        copy {
+            into shadowJar.destinationDir
+            from (repairWorkingDir) {
+                include repairedJarName
+            }
+        }
+    }
+}
 
 assemble.dependsOn shadowJar

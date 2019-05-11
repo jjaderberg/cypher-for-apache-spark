@@ -2,6 +2,14 @@ apply plugin: 'ch.kk7.spawn'
 
 description = 'Cypher for Apache Spark - Test Utilities'
 
+if (project.hasProperty('testOkapiShade')) {
+    repositories {
+        maven {
+            url "file://${rootProject.file(cfg.publishDir)}"
+        }
+    }
+}
+
 dependencies {
     compile project(':morpheus-spark-cypher')
     compile project(':okapi-testing')
