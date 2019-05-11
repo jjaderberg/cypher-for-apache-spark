@@ -101,6 +101,7 @@ shadowJar {
             from (repairWorkingDir) {
                 include repairedJarName
             }
+            rename '.*', shadowJar.archiveName
         }
     }
 }
