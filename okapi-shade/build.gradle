@@ -4,11 +4,13 @@ description = 'Okapi Shade contains the full Okapi stack and its relocated depen
 
 dependencies {
     compile project(':okapi-relational')
+    compile project(':okapi-tck')
 }
 
 ext.excludedDependencyGroups = [
     'org.scala-lang',
     'org.scala-lang.modules',
+    'org.scalatest',
 ]
 
 pub.each { k, v ->
