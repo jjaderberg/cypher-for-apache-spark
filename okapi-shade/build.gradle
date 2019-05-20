@@ -74,7 +74,7 @@ shadowJar {
     exclude "utf8.json"
 
     doLast {
-        def scalaShadeExecutable = 'bin/scalashade-0.3.jar'
+        def scalaShadeExecutable = 'bin/scalashade-0.3.1.jar'
         def repairWorkingDir = "$buildDir/tmp/scalashade"
         def brokenJarPath = shadowJar.archivePath
         def repairedJarName

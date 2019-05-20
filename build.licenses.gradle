@@ -161,6 +161,7 @@ subprojects {
  'morpheus-testing',
  'morpheus-jmh',
  'documentation',
+ 'okapi-shade',
 ].each {
     project(it).tasks.validateLicenses.enabled = false
     project(it).tasks.generateLicensesFiles.enabled = false
